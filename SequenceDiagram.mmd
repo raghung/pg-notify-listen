@@ -1,0 +1,19 @@
+sequenceDiagram
+    participant User
+    participant PostgreSQL as PostgreSQL DB
+    participant Trigger as Database Trigger
+    participant Service as Spring Boot App
+    participant Queue as In-Memory Queue
+    participant Processor as Event Processor
+
+    User->>+PostgreSQL: Insert Data into demo_table
+    PostgreSQL->>+Trigger: Fires on Insert
+    Trigger->>-PostgreSQL: NOTIFY demo_channel
+    PostgreSQL->>+Service: Sends Notification
+    Service->>+Queue: Enqueue Notification
+    Service->>-PostgreSQL: Listen for more notifications
+    Queue->>+Processor: Dequeue Notification
+    Processor->>-Queue: Process Event
+    Processor->>Processor: Further processing (e.g., business logic)
+
+    Note over User,Processor: Flow from data insert to processing
